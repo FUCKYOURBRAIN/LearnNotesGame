@@ -1,9 +1,11 @@
 #include <windows.h>
 #include <iostream>
 #include <vector>
+#include <time.h>
 using namespace std;
 
 int note_to_play = -1;
+int game_mode = 0;
 
 void CALLBACK midiCallback(HMIDIIN handle,
         UINT uMsg,
@@ -18,6 +20,26 @@ void CALLBACK midiCallback(HMIDIIN handle,
 
     vector<string> notes = {"C", "C# / Db" , "D", "D# / Eb", "E", "F", "F# / Gb",
         "G", "G# / Ab", "A", "A# / Bb", "B"};
+
+    vector<string> stave = {
+        "-----\n     \n-----\n     \n-----\n     \n=====\n     \n-----\n     \n -o- \n", // C4
+        "-----\n     \n-----\n     \n-----\n     \n=====\n     \n-----\n  o  \n", // D4
+        "-----\n     \n-----\n     \n-----\n     \n=====\n     \n--o--\n", // E4
+        "-----\n     \n-----\n     \n-----\n     \n=====\n  o  \n-----\n", // F4
+        "-----\n     \n-----\n     \n-----\n     \n==o==\n     \n-----\n", // G4
+        "-----\n     \n-----\n     \n-----\n  o  \n=====\n     \n-----\n", // A4
+        "-----\n     \n-----\n     \n--o--\n     \n=====\n     \n-----\n", // B4
+        "-----\n     \n-----\n  o  \n-----\n     \n=====\n     \n-----\n", // C5
+        "-----\n     \n--o--\n     \n-----\n     \n=====\n     \n-----\n", // D5
+        "-----\n  o  \n-----\n     \n-----\n     \n=====\n     \n-----\n", // E5
+        "--o--\n     \n-----\n     \n-----\n     \n=====\n     \n-----\n", // F5
+        "  o  \n-----\n     \n-----\n     \n-----\n     \n=====\n     \n-----\n", // G5
+        "--o--\n     \n-----\n     \n-----\n     \n-----\n     \n=====\n     \n-----\n", // A5
+    };
+
+    vector<int> numbers = {
+        60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81
+    };
 
     switch (uMsg) {
     case MIM_DATA:
@@ -46,51 +68,67 @@ void CALLBACK midiCallback(HMIDIIN handle,
 
         /* If event is note on, get a note index 0-11 starting from C */
         if (int(status_byte >> 4) == 9) {
-            if (int(first_midi_byte) >= 0 && int(first_midi_byte) <= 11) {
-                note_index = int(first_midi_byte);
-            }
-            else if (int(first_midi_byte) >= 12 && int(first_midi_byte) <= 23) {
-                note_index = int(first_midi_byte) % 12;
-            }
-            else if (int(first_midi_byte) >= 24 && int(first_midi_byte) <= 35) {
-                note_index = int(first_midi_byte) % 24;
-            }
-            else if (int(first_midi_byte) >= 36 && int(first_midi_byte) <= 47) {
-                note_index = int(first_midi_byte) % 36;
-            }
-            else if (int(first_midi_byte) >= 48 && int(first_midi_byte) <= 59) {
-                note_index = int(first_midi_byte) % 48;
-            }
-            else if (int(first_midi_byte) >= 60 && int(first_midi_byte) <= 71) {
-                note_index = int(first_midi_byte) % 60;
-            }
-            else if (int(first_midi_byte) >= 72 && int(first_midi_byte) <= 83) {
-                note_index = int(first_midi_byte) % 72;
-            }
-            else if (int(first_midi_byte) >= 84 && int(first_midi_byte) <= 95) {
-                note_index = int(first_midi_byte) % 84;
-            }
-            else if (int(first_midi_byte) >= 96 && int(first_midi_byte) <= 107) {
-                note_index = int(first_midi_byte) % 96;
-            }
-            else if (int(first_midi_byte) >= 108 && int(first_midi_byte) <= 119) {
-                note_index = int(first_midi_byte) % 108;
-            }
-            else if (int(first_midi_byte) >= 120 && int(first_midi_byte) <= 127) {
-                note_index = int(first_midi_byte) % 120;
-            }
+            if (game_mode == 1) {
+                if (int(first_midi_byte) >= 0 && int(first_midi_byte) <= 11) {
+                    note_index = int(first_midi_byte);
+                }
+                else if (int(first_midi_byte) >= 12 && int(first_midi_byte) <= 23) {
+                    note_index = int(first_midi_byte) % 12;
+                }
+                else if (int(first_midi_byte) >= 24 && int(first_midi_byte) <= 35) {
+                    note_index = int(first_midi_byte) % 24;
+                }
+                else if (int(first_midi_byte) >= 36 && int(first_midi_byte) <= 47) {
+                    note_index = int(first_midi_byte) % 36;
+                }
+                else if (int(first_midi_byte) >= 48 && int(first_midi_byte) <= 59) {
+                    note_index = int(first_midi_byte) % 48;
+                }
+                else if (int(first_midi_byte) >= 60 && int(first_midi_byte) <= 71) {
+                    note_index = int(first_midi_byte) % 60;
+                }
+                else if (int(first_midi_byte) >= 72 && int(first_midi_byte) <= 83) {
+                    note_index = int(first_midi_byte) % 72;
+                }
+                else if (int(first_midi_byte) >= 84 && int(first_midi_byte) <= 95) {
+                    note_index = int(first_midi_byte) % 84;
+                }
+                else if (int(first_midi_byte) >= 96 && int(first_midi_byte) <= 107) {
+                    note_index = int(first_midi_byte) % 96;
+                }
+                else if (int(first_midi_byte) >= 108 && int(first_midi_byte) <= 119) {
+                    note_index = int(first_midi_byte) % 108;
+                }
+                else if (int(first_midi_byte) >= 120 && int(first_midi_byte) <= 127) {
+                    note_index = int(first_midi_byte) % 120;
+                }
 
-            // Check note
-            if (note_to_play > -1 && note_index == note_to_play) {
-                cout << "RIGTH!\n";
-            }
-            else if (note_to_play > -1 && note_index != note_to_play) {
-                cout << "WRONG!\n";
-            }
+                // Check note
+                if (note_to_play > -1 && note_index == note_to_play) {
+                    cout << "RIGTH!\n";
+                }
+                else if (note_to_play > -1 && note_index != note_to_play) {
+                    cout << "WRONG!\n";
+                }
 
-            // Make a next guess
-            note_to_play = rand() % 11 + 1;
-            cout << "Play " << notes[note_to_play] << '\n';
+                // Make a next guess
+                note_to_play = rand() % 12;
+                cout << "Play " << notes[note_to_play] << '\n';
+            }
+            else if (game_mode == 2) {
+                //cout << int(first_midi_byte) << '\n';
+                if (numbers[note_to_play] == int(first_midi_byte)) {
+                    cout << "RIGTH!\n";
+                }
+                else {
+                    cout << "WRONG!\n";
+                }
+
+                // Make a next guess
+                note_to_play = rand() % 13;
+                //cout << numbers[note_to_play] << '\n';
+                cout << stave[note_to_play] << '\n';
+            }
             
         }
         break;
@@ -105,15 +143,29 @@ void CALLBACK midiCallback(HMIDIIN handle,
     }
     
     // Make a starting guess;
+    
     if (note_to_play == -1) {
-        note_to_play = rand() % 11 + 1;
-        cout << "Play " << notes[note_to_play] << '\n';
+        if (game_mode == 1) {
+            note_to_play = rand() % 12;
+            cout << "Play " << notes[note_to_play] << '\n';
+        }
+        else if (game_mode == 2) {
+            note_to_play = rand() % 13;
+            //cout << numbers[note_to_play] << '\n';
+            cout << stave[note_to_play] << '\n';
+        }
     }
 
 }
 
 
 int main() {
+    unsigned int time_ui = unsigned int(time(NULL));
+    srand(time_ui);
+
+    cout << "Choose a game mode. Enter 1 for name mode, enter 2 for stave mode\n";
+    cin >> game_mode;
+
     unsigned int devCount = midiInGetNumDevs();
     cout << devCount << " MIDI devices connected:" << endl;
     MIDIINCAPS inputCapabilities;
